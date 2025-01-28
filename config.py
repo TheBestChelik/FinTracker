@@ -3,13 +3,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+USERS_SPREADSHEET_ID = os.getenv("USERS_SPREADSHEET_ID")
+
+# Users table
+USERS_RANGE =  "main!A:B"
 
 
 
-
-
-SCOPE = ['https://www.googleapis.com/auth/spreadsheets']
+SCOPE = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 TOKEN_FILE = "token.json"
 CREDENTIALS_FILE = "credentials.json"
 EXPANSES_SHEET_NAME = "Расходы"

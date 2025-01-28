@@ -38,8 +38,8 @@ def create_table(expenses, head):
         table += "-" * (max_len + gap) + "\n"
     return table
 
-def get_statistics_month(month_number, year, fin_manager):
-    [month, expanses, sum] = fin_manager.get_statistics(month_number)
+def get_statistics_month(month_number, year, fin_manager, sheet):
+    [month, expanses, sum] = fin_manager.get_statistics(sheet, month_number)
     filtered_expenses = [(category, amount) for category, amount in expanses.items() if float(amount.replace(" ", "")) > 0]
     sorted_expenses = sorted(filtered_expenses, key=lambda x: float(x[1].replace(" ", "")), reverse=True)
     sorted_expenses.append(("TOTAL", sum))
@@ -92,44 +92,3 @@ def decode_expanses_callback(callback_data) -> tuple:
     index += 2
     teg = callback_data[index: index + teg_len]
     return (category_index, amount, comment, teg)
-
-# if __name__ == "__main__":
-#     cat = 1
-#     amount = 10.5
-#     comment = "hui"
-#     teg = "#hui"
-#     encoded = encode_expanses_callback(cat, amount, comment, teg)
-#     assert((cat, amount, comment, teg) == decode_expanses_callback(encoded))
-
-
-#     cat = 10
-#     amount = float(105)
-#     comment = "hui"
-#     teg = "#hui"
-#     encoded = encode_expanses_callback(cat, amount, comment, teg)
-#     assert((cat, amount, comment, teg) == decode_expanses_callback(encoded))
-
-#     cat = 1
-#     amount = 10.5
-#     comment = ""
-#     teg = "#hui"
-#     encoded = encode_expanses_callback(cat, amount, comment, teg)
-#     assert((cat, amount, comment, teg) == decode_expanses_callback(encoded))
-
-    
-#     cat = 1
-#     amount = 10.5
-#     comment = "hui"
-#     teg = ""
-#     encoded = encode_expanses_callback(cat, amount, comment, teg)
-#     assert((cat, amount, comment, teg) == decode_expanses_callback(encoded))
-
-#     cat = 1
-#     amount = 10.5
-#     comment = ""
-#     teg = ""
-#     encoded = encode_expanses_callback(cat, amount, comment, teg)
-#     assert((cat, amount, comment, teg) == decode_expanses_callback(encoded))
-
-
-

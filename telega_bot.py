@@ -1,6 +1,6 @@
 from datetime import datetime
 from telegram import CallbackQuery, Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters, CallbackContext
 
 
 from fin_manager import FinManager
@@ -16,6 +16,7 @@ import utils
 class TeleBot:
     fin_manager = None
     users = None
+
     def __init__(self, fin_manager = None):
         if fin_manager:
             self.fin_manager = fin_manager
@@ -30,7 +31,10 @@ class TeleBot:
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.parse_user_input))
         app.add_handler(CallbackQueryHandler(self.button))
 
+        app.add_error_handler(self.error_handler)
+
         app.run_polling()
+        
     
     def get_user_id(self, update) -> int:
         """Returns the user ID for both regular updates and callback queries."""
@@ -40,6 +44,7 @@ class TeleBot:
             return update.from_user.id
         else:
             raise Exception("User id not found")
+        
     def user_sheet(self, user_id: int):
         if user_id in self.users:
             return self.users[user_id]
@@ -51,9 +56,6 @@ class TeleBot:
     def identify_user(self, update):
         user_id = self.get_user_id(update)
         return self.user_sheet(user_id)
-
-    
-
     
     async def button(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
@@ -61,11 +63,12 @@ class TeleBot:
 
     async def add_new_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_id = self.get_user_id(update)
-        sheet = update.message.text
+        sheet = utils.extract_spreadsheet_id(update.message.text)
+        if sheet is None:
+            await update.message.reply_text(text.INVALID_LINK, parse_mode="MarkdownV2")
+            return
         if self.fin_manager.check_user_sheet(sheet) == -1:
-            await update.message.reply_text(
-            "Invalid"
-            )
+            await update.message.reply_text(text.NO_ACCESS_LINK, parse_mode="MarkdownV2")
             return
         self.fin_manager.add_new_user(user_id, sheet)
         self.users[user_id] = sheet
@@ -76,7 +79,7 @@ class TeleBot:
         if user_id in self.users:
             return False
         await update.message.reply_text(
-           "Enter you spreadsheet id to continue"
+           text.ADD_USER_TEXT, parse_mode="MarkdownV2"
         )
         return True
 
@@ -86,15 +89,19 @@ class TeleBot:
         if await self.check_new_user(update):
             return
         
-        keyboard = [
-            list(text.FUNCTIONS.keys()),  # First row
-        ]
+        keyboard = text.FUNCTIONS_KEYBOARD
 
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
         await update.message.reply_text(
             text.START_TEXT, reply_markup=reply_markup
         )
+
+    async def sync_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        self.users = self.fin_manager.get_users_spreadsheets()
+        sheet = self.identify_user(update)
+        self.fin_manager.sync(sheet)
+        await update.message.reply_text("Синхронизировано успешно! ✅")
 
     async def parse_user_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if self.get_user_id(update) not in self.users:
@@ -176,6 +183,15 @@ class TeleBot:
         keyboard.append([InlineKeyboardButton(text.CANCEL_TRANSACTION, callback_data=CALLBACK_DATA.cancel_input)])
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(text.SELECT_CATEGORY, reply_markup=reply_markup)
+
+
+    async def error_handler(self, update: Update, context: CallbackContext):
+        # Log the error
+        print(f"Error occurred: {context.error}")
+
+        # Optionally send a message to the user (if there is a message)
+        if update.message:
+            await update.message.reply_text(text.ERROR_MESSAGE)
     
     
 

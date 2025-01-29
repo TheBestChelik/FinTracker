@@ -10,7 +10,7 @@ USERS_RANGE =  "main!A:B"
 
 
 
-SCOPE = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+SCOPE = ['https://www.googleapis.com/auth/spreadsheets']
 TOKEN_FILE = "token.json"
 CREDENTIALS_FILE = "credentials.json"
 EXPANSES_SHEET_NAME = "Расходы"

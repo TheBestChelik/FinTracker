@@ -129,6 +129,7 @@ class FinManager:
         result = self.sheet.values().get(spreadsheetId=USERS_SPREADSHEET_ID, range=USERS_RANGE).execute().get('values', [])
         user_map = {int(user_id): sheet_id for user_id, sheet_id in result}
         return user_map
+    
     def check_user_sheet(self, sheet):
         try:
             expanses_categories = self.get_expanses_categories(sheetId=sheet)
@@ -137,6 +138,7 @@ class FinManager:
             print(ex)
             return -1
         return 0
+
     def add_new_user(self, user_id, sheet):
         self.sync(sheet)
         data = [user_id, sheet]
@@ -145,47 +147,6 @@ class FinManager:
                                     valueInputOption = "USER_ENTERED",
                                     insertDataOption = "INSERT_ROWS",
                                     body ={"values": [data]}).execute()    
-        
-
-    
-
-
-if __name__ == "__main__":
-    fin_manager = FinManager()
-    users = fin_manager.get_users_spreadsheets()
-    print(fin_manager.copy_template())
-    # print(users)
-    # while True:
-    #     print("Functions:")
-    #     print("1 - add expanses")
-    #     print("2 - check last 5 expanses")
-    #     print("3 - Cancel last transaction")
-    #     print("4 - Get statistics")
-    #     func = int(input("Function number: "))
-    #     if func == 1:
-    #         amount = float(input("Enter amount: "))
-    #         comment = input("Comment: ")
-    #         teg = input("Teg: ")
-    #         print("Select the category:")
-    #         for c in range(len(fin_manager.expanses_categories)):
-    #             print(c + 1, fin_manager.expanses_categories[c])
-    #         category_index = int(input("Enter category index: "))
-    #         fin_manager.add_expanses(category_index - 1, amount, teg, comment)
-    #         print("Saved into table")
-    #     elif func == 2:
-    #         res = fin_manager.get_last_transactions()
-    #         for i in range(len(res)):
-    #             print(i+1, res[i][0], res[i][1], res[i][2])
-    #     elif func == 3:
-    #         fin_manager.clear_last_transactions()
-    #         print("Last transaction removed")
-    #     elif func == 4:
-    #         month_number = int(input("Number month"))
-    #         [month, expanses, sum] = fin_manager.get_statistics(month_number)
-    #         print(f"==={month}===")
-    #         for key, value in expanses.items():
-    #             print(f"{key}:", value)
-    #         print(f"Sum: {sum}")
-        
+             
         
     

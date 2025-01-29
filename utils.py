@@ -92,3 +92,8 @@ def decode_expanses_callback(callback_data) -> tuple:
     index += 2
     teg = callback_data[index: index + teg_len]
     return (category_index, amount, comment, teg)
+
+def extract_spreadsheet_id(input_str):
+    match = re.search(r"(?:/d/|^)([a-zA-Z0-9_-]+)(?:/|$)", input_str)
+    return match.group(1) if match else None
+

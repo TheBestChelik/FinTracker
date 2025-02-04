@@ -24,7 +24,6 @@ def parse_expanses_input(input_str):
 
 def create_table(expenses, head):
     max_len = 0
-    print(expenses)
     for (category, amount) in expenses:
         s = category + str(amount)
         max_len = max(len(s), max_len)
@@ -38,13 +37,21 @@ def create_table(expenses, head):
         table += "-" * (max_len + gap) + "\n"
     return table
 
-def get_statistics_month(month_number, year, fin_manager, sheet):
-    [month, expanses, sum] = fin_manager.get_statistics(sheet, month_number)
+def get_statistics_month(month_number, year, fin_manager, sheet, sheet_name):
+    [month, expanses, sum] = fin_manager.get_statistics(sheet, sheet_name, month_number)
     filtered_expenses = [(category, amount) for category, amount in expanses.items() if float(amount.replace(" ", "")) > 0]
     sorted_expenses = sorted(filtered_expenses, key=lambda x: float(x[1].replace(" ", "")), reverse=True)
     sorted_expenses.append(("TOTAL", sum))
 
     text = create_table(sorted_expenses, f"🗓 {month.upper()}, {year}")
+    return text
+def get_statistics_extra_sheet(fin_manager, sheet, sheet_name):
+    [expanses, sum] = fin_manager.get_statistics_extra_sheets(sheet, sheet_name)
+    filtered_expenses = [(category, amount) for category, amount in expanses.items() if float(amount.replace(" ", "")) > 0]
+    sorted_expenses = sorted(filtered_expenses, key=lambda x: float(x[1].replace(" ", "")), reverse=True)
+    sorted_expenses.append(("TOTAL", sum))
+
+    text = create_table(sorted_expenses, sheet_name)
     return text
 
 def encode_statistics_callback(month, year):
@@ -93,7 +100,27 @@ def decode_expanses_callback(callback_data) -> tuple:
     teg = callback_data[index: index + teg_len]
     return (category_index, amount, comment, teg)
 
+def encode_sheet_callback(sheet_id, sheet_name):
+    # Convert the sheet ID to a string
+    sheet_id_str = str(sheet_id)
+    
+    # Format the string with the length of the sheet ID and sheet name
+    result = f"TABL{len(sheet_id_str):02d}{sheet_id_str}{len(sheet_name):02d}{sheet_name}"
+    
+    return result
+def decode_sheet_callback(callback_data)-> tuple:
+    sheet_id_len = int(callback_data[4:6])
+    sheet_id = int(callback_data[6:6 + sheet_id_len])
+    
+    # Extract the length of the sheet name and the sheet name itself
+    sheet_name_len = int(callback_data[6 + sheet_id_len:8 + sheet_id_len])
+    sheet_name = callback_data[8 + sheet_id_len:8 + sheet_id_len + sheet_name_len]
+    
+    return sheet_id, sheet_name
+
 def extract_spreadsheet_id(input_str):
     match = re.search(r"(?:/d/|^)([a-zA-Z0-9_-]+)(?:/|$)", input_str)
     return match.group(1) if match else None
+
+    
 

@@ -17,6 +17,14 @@ NO_ACCESS_LINK = (
     "Если всё верно, попробуй отправить ссылку ещё раз 🔄"
 )
 
+TABLE_NAME_EXISTS_ERROR = "⚠️ Таблица с таким названием уже существует. Попробуй другое имя ✏️"
+TABLE_ADDED_AND_SELECTED = "✅ Таблица успешно добавлена и выбрана! 📂"
+ENTER_TABLE_NAME = "📝 Введите название таблицы"
+def TABLE_SELECTED(sheet_name):
+    return f"✅ Выбрана таблица {sheet_name}!"
+
+
+
 START_TEXT = "Отправь любое число и выбери категорию 👇"
 
 ERROR_INCORRECT_INPUT = """⚠️ Неверный формат ввода, допустимы только числа, знаки арифметических операций  (+,-,/,*). 
@@ -27,12 +35,15 @@ SELECT_CATEGORY = "Выберите категорию."
 ERROR_MESSAGE = "Что-то пошло не так. Пожалуйста, попробуй ещё раз позже 😊"
 
 
-FUNCTIONS_KEYBOARD = [["📊 Расход по категориям", "💸 Мои последние расходы"], ["🔄 Синхронизировать"]]
+FUNCTIONS_KEYBOARD = [["📊 Расход по категориям", "💸 Мои последние расходы"], ["🔄 Синхронизировать", "📂 Мои таблицы"]]
 FUNCTIONS = {"📊 Расход по категориям": TeleBot.get_statistics,
              "💸 Мои последние расходы": TeleBot.get_last_expanses,
-             "🔄 Синхронизировать": TeleBot.sync_user}
+             "🔄 Синхронизировать": TeleBot.sync_user,
+             "📂 Мои таблицы": TeleBot.get_tables}
 
 BUTTON_FUNCTIONS = {CALLBACK_DATA.cancel_input: TeleBot.button_cancel_input,
                     CALLBACK_DATA.cancel_transaction: TeleBot.button_cancel_transaction,
                     CALLBACK_DATA.expanses: TeleBot.button_expanses_category,
-                    CALLBACK_DATA.statistics: TeleBot.button_get_statistics}
+                    CALLBACK_DATA.statistics: TeleBot.button_get_statistics,
+                    CALLBACK_DATA.tables: TeleBot.button_table_selected,
+                    CALLBACK_DATA.add_table: TeleBot.button_add_new_table}

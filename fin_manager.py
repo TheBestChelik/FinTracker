@@ -157,8 +157,8 @@ class FinManager:
     
     def check_user_sheet(self, sheet):
         try:
-            expanses_categories = self.get_expanses_categories(sheetId=sheet)
-            last_row = self.get_rows_number(sheetId=sheet)
+            expanses_categories = self.get_expanses_categories(sheetId=sheet, sheet_name=EXPANSES_SHEET_NAME)
+            last_row = self.get_rows_number(sheetId=sheet, sheet_name=EXPANSES_SHEET_NAME)
         except Exception as ex:
             print(ex)
             return -1

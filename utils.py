@@ -70,19 +70,22 @@ def decode_statistics_callback(callback_data) -> tuple:
     year = int(callback_data[6:10])
     return (month, year)
 
+def format_float(num):
+    formatted = f"{num:.7f}"  # Start with 7 decimal places
+    if len(formatted) > 8:
+        formatted = f"{num:.{8 - len(str(int(num))) - 1}f}"  # Adjust decimal places dynamically
+    return formatted[:8]  # Ensure exactly 8 characters
+
+
 def encode_expanses_callback(category_index, amount, comment, teg) -> str:
     category_index_str = str(category_index)
     if len(category_index_str) == 1:
         category_index_str = "0" + category_index_str
-    amount_str = str(amount)
-    if len(amount_str) < 8:
-        amount_str += "0" * (8 - len(amount_str))
-    comment_len = str(len(comment))
-    if len(comment_len) == 1:
-        comment_len = "0" + comment_len
-    teg_len = str(len(teg))
-    if len(teg_len) == 1:
-        teg_len = "0" + teg_len
+    amount_str = format_float(amount)
+
+    comment_len = f"{len(comment):02d}"
+    teg_len = f"{len(teg):02d}"
+    
     return config.CALLBACK_DATA.expanses + category_index_str + amount_str + comment_len + comment + teg_len + teg
 
 def decode_expanses_callback(callback_data) -> tuple:
